@@ -20,7 +20,7 @@ public class SecurityConfig {
                             .loginPage("/login").permitAll();
                 })
                 .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/req/signup").permitAll();
+                    registry.requestMatchers("/signup", "/css/**", "/js/**").permitAll();
                     registry.anyRequest().authenticated();
                 })
                 .build();
