@@ -3,8 +3,13 @@ package com.reservation.online_reservation_system.controllers;
 import com.reservation.online_reservation_system.models.Reservation;
 import com.reservation.online_reservation_system.models.User;
 import com.reservation.online_reservation_system.services.ReservationService;
+import com.reservation.online_reservation_system.services.UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +20,7 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final UserService userService;
 
     // Book a reservation
     @PostMapping("/book")
@@ -43,6 +49,17 @@ public class ReservationController {
         user.setId(userId);
         return ResponseEntity.ok(reservationService.getReservationsByUser(user));
     }
+
+    // ReservationController
+    @GetMapping("/user/me")
+    public ResponseEntity<List<Reservation>> myReservations(@AuthenticationPrincipal UserDetails principal) {
+        var user = userService.findByUsername(principal.getUsername())
+                            .orElseThrow(() -> new UsernameNotFoundException(principal.getUsername()));
+
+        List<Reservation> reservations = reservationService.getReservationsByUser(user);
+        return ResponseEntity.ok(reservations);
+    }
+
 
     // Get reservation by PNR
     @GetMapping("/{pnrNumber}")

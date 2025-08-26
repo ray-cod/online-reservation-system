@@ -111,23 +111,38 @@
   }
 
   // Toggle reservations panel
-  btnReservations.addEventListener("click", function () {
+  btnReservations.addEventListener("click", async function () {
     if (myReservations.hidden) {
-      // In real app: fetch user's reservations from /api/reservations/user/{id}
-      myReservations.hidden = false;
-      // Demo: populate a fake row
-      const tbody = document.querySelector("#reservationsTable tbody");
-      tbody.innerHTML = `
-            <tr>
-              <td>1234567890</td>
-              <td>Shatabdi Express</td>
-              <td>Raimi D.</td>
-              <td>2025-09-01</td>
-              <td>AC</td>
-              <td>BOOKED</td>
-              <td><button class="btn btn-sm btn-outline cancel-pnr">Cancel</button></td>
-            </tr>
+      // fetch user's reservations from /api/reservations/user/{userId}
+      const res = await fetch("/api/reservations/user/me");
+      if (!res.ok) {
+        console.error("failed to fetch trains");
+        return;
+      }
+      const reservations = await res.json();
+      const tbody = myReservations.querySelector("tbody");
+      tbody.innerHTML = "";
+      reservations.forEach((r) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${r.pnrNumber}</td>
+            <td>${r.train.trainName}</td>
+            <td>${r.passengerName}</td>
+            <td>${new Date(r.journeyDate).toLocaleDateString()}</td>
+            <td>${r.fromStation}</td>
+            <td>${r.toStation}</td>
+            <td>${r.classType}</td>
+            <td>${r.status}</td>
+            <td>${
+              r.status !== "CANCELLED"
+                ? `<button class="btn btn-sm btn-danger cancel-pnr">Cancel</button>`
+                : ""
+            }</td>
           `;
+        tbody.appendChild(tr);
+      });
+
+      myReservations.hidden = false;
     } else {
       myReservations.hidden = true;
     }
@@ -143,7 +158,7 @@
         );
         if (confirmed) {
           // TODO: call API to cancel
-          e.target.closest("tr").querySelector("td:nth-child(6)").textContent =
+          e.target.closest("tr").querySelector("td:nth-child(8)").textContent =
             "CANCELLED";
           e.target.remove();
         }
