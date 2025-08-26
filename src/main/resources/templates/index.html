@@ -1,11 +1,375 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ReserVate — Single Page Reservation</title>
+
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="../static/css/home.css">
 </head>
 <body>
-    <h1>Welcome to the Online Reservation System</h1>
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="ReserVate home">
+        <span class="logo-mark" aria-hidden="true">⟳</span>
+        <span class="logo-text">ReserVate</span>
+      </a>
+
+      <div class="actions">
+        <button id="btn-reservations" class="btn btn-outline" title="My reservations">My reservations</button>
+        <div class="user-icon">
+          <i class="fa-solid fa-user"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== App main section ===== -->
+  <main class="container app">
+    <!-- Hero / Quick search -->
+    <section class="hero">
+      <div class="hero-left">
+        <h1>Book trains easily — all in one page</h1>
+        <p class="lead">Search routes, reserve seats and manage bookings without navigating away.</p>
+        <p class="muted">Quick tip: login for a personalized reservations list and faster booking.</p>
+      </div>
+
+      <aside class="search-panel" aria-labelledby="search-title">
+        <h2 id="search-title">Find trains</h2>
+
+        <!-- Search form (GET) -->
+        <form id="searchForm" class="reservation-form" action="/api/reservations/search" method="get">
+          <div class="grid">
+            <div>
+              <label class="visually-hidden" for="date">Date</label>
+              <input id="date" name="date" type="date" required>
+            </div>
+            <div>
+              <label class="visually-hidden" for="classType">Class</label>
+              <select id="classType" name="classType" required>
+                <option value="" disabled selected>Class</option>
+                <option value="GENERAL">General</option>
+                <option value="SLEEPER">Sleeper</option>
+                <option value="AC">AC</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-search">Search trains</button>
+        </form>
+      </aside>
+    </section>
+
+    <!-- Search Results -->
+    <section id="resultsSection" class="results-section" aria-live="polite" hidden>
+      <h3>Available trains</h3>
+
+      <!-- Table will be filled by server-side rendering or by JS fetch -->
+      <div class="table-wrap">
+        <table id="resultsTable" class="results-table">
+          <thead>
+            <tr>
+              <th>Train #</th>
+              <th>Name</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Departure</th>
+              <th>Arrival</th>
+              <th>Class</th>
+              <th>Seats</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example row (server or JS should replace / append rows) -->
+            
+            <!-- <tr>
+              <td>12001</td>
+              <td>Shatabdi Express</td>
+              <td>City A</td>
+              <td>City B</td>
+              <td>06:00</td>
+              <td>12:30</td>
+              <td>AC</td>
+              <td>20</td>
+              <td><button class="btn btn-sm btn-primary book-btn" data-train-id="1" data-train-number="12001" data-train-name="Shatabdi Express" data-class="AC">Book</button></td>
+            </tr> -->
+           
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Booking panel (modal-style) -->
+    <div id="bookingModal" class="modal" aria-hidden="true">
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <header class="modal-header">
+          <h3 id="modalTitle">Book seat</h3>
+          <button id="closeModal" class="btn-icon" aria-label="Close booking panel">✕</button>
+        </header>
+
+        <form id="bookingForm" th:action="@{/api/reservations/book}" th:object="${reservation}" method="post">
+          <input type="hidden" id="trainId" name="trainId">
+          <div class="field">
+            <label for="trainNumber">Train</label>
+            <input id="trainNumber" name="trainNumber" type="text" readonly>
+          </div>
+
+          <div class="field">
+            <label for="trainName">Name</label>
+            <input id="trainName" name="trainName" type="text" readonly>
+          </div>
+
+          <div class="field">
+            <label for="passengerName">Passenger name</label>
+            <input id="passengerName" name="passengerName" type="text" placeholder="Full name" required>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="bookingClass">Class</label>
+              <select id="bookingClass" name="classType" required disabled>
+                <option value="GENERAL">General</option>
+                <option value="SLEEPER">Sleeper</option>
+                <option value="AC">AC</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="journeyDate">Journey date</label>
+              <input id="journeyDate" name="journeyDate" type="date" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="fromStation">From</label>
+            <input id="fromStation" name="fromStation" type="text" readonly>
+          </div>
+
+          <div class="field">
+            <label for="toStation">To</label>
+            <input id="toStation" name="toStation" type="text" readonly>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="cancelBooking" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-primary">Confirm booking</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- My reservations (user must be logged in to see real data) -->
+    <section id="myReservations" class="my-reservations" hidden>
+      <h3>My reservations</h3>
+      <p class="muted">Listed below are your current reservations. Use the Cancel button to cancel a booking.</p>
+
+      <div class="table-wrap">
+        <table id="reservationsTable" class="results-table">
+          <thead>
+            <tr>
+              <th>PNR</th>
+              <th>Train</th>
+              <th>Passenger</th>
+              <th>Date</th>
+              <th>Class</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Server-side or JS should populate actual rows for the logged-in user -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Cancel by PNR quick form -->
+    <section class="cancel-section">
+      <h3>Cancel booking</h3>
+      <form id="cancelForm" action="/api/reservations/cancel" method="post">
+        <label class="visually-hidden" for="pnr">PNR</label>
+        <input id="pnr" name="pnr" type="text" placeholder="Enter PNR to cancel" required>
+        <button type="submit" class="btn btn-cta">Cancel PNR</button>
+      </form>
+      <p id="cancelMsg" class="muted" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container footer-simple">
+      <div class="brand-footer">
+        <span class="logo-mark">⟳</span>
+        <span class="logo-text">ReserVate</span>
+      </div>
+      <div class="contact">
+        <p class="muted">support@reservate.example • &copy; 2025 ReserVate</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightweight JS to wire UI interactions -->
+  <script>
+    (function () {
+      // Elements
+      const resultsSection = document.getElementById('resultsSection');
+      const resultsTableBody = document.querySelector('#resultsTable tbody');
+      const searchForm = document.getElementById('searchForm');
+
+      const bookingModal = document.getElementById('bookingModal');
+      const bookingForm = document.getElementById('bookingForm');
+      const closeModal = document.getElementById('closeModal');
+      const cancelBooking = document.getElementById('cancelBooking');
+
+      const btnReservations = document.getElementById('btn-reservations');
+      const myReservations = document.getElementById('myReservations');
+
+      const cancelForm = document.getElementById('cancelForm');
+      const cancelMsg = document.getElementById('cancelMsg');
+
+      // Show results section when search submitted
+      searchForm.addEventListener('submit', function (e) {
+        // Let the browser perform the GET request (or you can intercept and fetch via AJAX)
+        // For demo, prevent submission and show a demo row
+        e.preventDefault();
+
+        // Clear previous rows
+        resultsTableBody.innerHTML = '';
+
+        // Demo: create two example rows (replace with real data from server)
+        const demoData = [
+          { id: 1, number: '12001', name: 'Shatabdi Express', from: 'City A', to: 'City B', dep: '06:00', arr: '12:30', classType: 'AC', seats: 8 },
+          { id: 2, number: '12567', name: 'InterCity', from: 'City A', to: 'City B', dep: '08:30', arr: '14:00', classType: 'SLEEPER', seats: 5 }
+        ];
+
+        demoData.forEach(tr => {
+          const trEl = document.createElement('tr');
+          trEl.innerHTML = `
+            <td>${tr.number}</td>
+            <td>${tr.name}</td>
+            <td>${tr.from}</td>
+            <td>${tr.to}</td>
+            <td>${tr.dep}</td>
+            <td>${tr.arr}</td>
+            <td>${tr.classType}</td>
+            <td>${tr.seats}</td>
+            <td><button class="btn btn-sm btn-primary book-btn" 
+                data-train-id="${tr.id}" 
+                data-train-number="${tr.number}" 
+                data-train-name="${tr.name}" 
+                data-from="${tr.from}"
+                data-to="${tr.to}"
+                data-class="${tr.classType}"
+              >Book</button></td>
+          `;
+          resultsTableBody.appendChild(trEl);
+        });
+
+        resultsSection.hidden = false;
+      });
+
+      // Delegate clicks on book buttons
+      resultsTableBody.addEventListener('click', function (e) {
+        if (e.target && e.target.matches('.book-btn')) {
+          const btn = e.target;
+          openBookingModal({
+            trainId: btn.dataset.trainId,
+            trainNumber: btn.dataset.trainNumber,
+            trainName: btn.dataset.trainName,
+            from: btn.dataset.from,
+            to: btn.dataset.to,
+            classType: btn.dataset.class
+          });
+        }
+      });
+
+      function openBookingModal(data) {
+        document.getElementById('trainId').value = data.trainId;
+        document.getElementById('trainNumber').value = data.trainNumber;
+        document.getElementById('trainName').value = data.trainName;
+        document.getElementById('fromStation').value = data.from;
+        document.getElementById('toStation').value = data.to;
+        document.getElementById('bookingClass').value = data.classType;
+        // optionally set default journey date from search
+        bookingModal.removeAttribute('aria-hidden');
+        bookingModal.style.display = 'block';
+      }
+
+      closeModal.addEventListener('click', closeBooking);
+      cancelBooking.addEventListener('click', closeBooking);
+      function closeBooking() {
+        bookingModal.style.display = 'none';
+        bookingModal.setAttribute('aria-hidden', 'true');
+      }
+
+      // Toggle reservations panel
+      btnReservations.addEventListener('click', function () {
+        if (myReservations.hidden) {
+          // In real app: fetch user's reservations from /api/reservations/user/{id}
+          myReservations.hidden = false;
+          // Demo: populate a fake row
+          const tbody = document.querySelector('#reservationsTable tbody');
+          tbody.innerHTML = `
+            <tr>
+              <td>1234567890</td>
+              <td>Shatabdi Express</td>
+              <td>Raimi D.</td>
+              <td>2025-09-01</td>
+              <td>AC</td>
+              <td>BOOKED</td>
+              <td><button class="btn btn-sm btn-outline cancel-pnr">Cancel</button></td>
+            </tr>
+          `;
+        } else {
+          myReservations.hidden = true;
+        }
+      });
+
+      // Cancel PNR from reservation list (demo)
+      document.querySelector('#reservationsTable tbody').addEventListener('click', function (e) {
+        if (e.target && e.target.matches('.cancel-pnr')) {
+          const confirmed = confirm('Are you sure you want to cancel this booking?');
+          if (confirmed) {
+            // TODO: call API to cancel
+            e.target.closest('tr').querySelector('td:nth-child(6)').textContent = 'CANCELLED';
+            e.target.remove();
+          }
+        }
+      });
+
+      // Cancel via quick form
+      cancelForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const pnr = document.getElementById('pnr').value.trim();
+        if (!pnr) { cancelMsg.textContent = 'Please provide a PNR.'; return; }
+        cancelMsg.textContent = 'Processing cancellation...';
+
+        // Demo: pretend success after 1s
+        setTimeout(() => {
+          cancelMsg.textContent = `PNR ${pnr} cancelled successfully.`;
+          cancelForm.reset();
+        }, 1000);
+      });
+
+      // Booking form submit (demo)
+      bookingForm.addEventListener('submit', function (e) {
+        // let the form submit to server in real app; here we demo
+        e.preventDefault();
+        const payload = Object.fromEntries(new FormData(bookingForm).entries());
+        // Example: send fetch POST to /api/reservations/book with JSON
+        console.log('Booking payload', payload);
+        alert('Booking confirmed (demo). In production, form will be submitted to server.');
+        closeBooking();
+      });
+    })();
+  </script>
 </body>
 </html>
