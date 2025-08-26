@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface TrainRepository extends JpaRepository<Train, Long> {
 
     Optional<Train> findByTrainNumber(String trainNumber);
+
+    Optional<Train> findByClassType(String classType);
 }
 
