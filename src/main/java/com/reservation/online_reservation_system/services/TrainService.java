@@ -29,6 +29,11 @@ public class TrainService {
         return trainRepository.findByTrainNumber(trainNumber);
     }
 
+    // Get train by class type
+    public Optional<Train> getTrainByClassType(String classType) {
+        return trainRepository.findByClassType(classType);
+    }
+
     // Get all trains
     public List<Train> getAllTrains() {
         return trainRepository.findAll();
