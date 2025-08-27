@@ -89,20 +89,7 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Example row (server or JS should replace / append rows) -->
-            
-            <!-- <tr>
-              <td>12001</td>
-              <td>Shatabdi Express</td>
-              <td>City A</td>
-              <td>City B</td>
-              <td>06:00</td>
-              <td>12:30</td>
-              <td>AC</td>
-              <td>20</td>
-              <td><button class="btn btn-sm btn-primary book-btn" data-train-id="1" data-train-number="12001" data-train-name="Shatabdi Express" data-class="AC">Book</button></td>
-            </tr> -->
-           
+            <!-- server or JS should replace / append rows -->
           </tbody>
         </table>
       </div>
@@ -116,7 +103,7 @@
           <button id="closeModal" class="btn-icon" aria-label="Close booking panel">✕</button>
         </header>
 
-        <form id="bookingForm" th:action="@{/api/reservations/book}" th:object="${reservation}" method="post">
+        <form id="bookingForm">
           <input type="hidden" id="trainId" name="trainId">
           <div class="field">
             <label for="trainNumber">Train</label>

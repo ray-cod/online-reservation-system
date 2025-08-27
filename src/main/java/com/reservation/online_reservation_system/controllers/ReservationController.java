@@ -4,6 +4,7 @@ import com.reservation.online_reservation_system.models.Reservation;
 import com.reservation.online_reservation_system.models.User;
 import com.reservation.online_reservation_system.services.ReservationService;
 import com.reservation.online_reservation_system.services.UserService;
+import com.reservation.online_reservation_system.services.dto.ReservationRequestDTO;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,13 @@ public class ReservationController {
     @PostMapping("/book")
     public ResponseEntity<Reservation> bookReservation(@RequestBody Reservation reservation) {
         Reservation savedReservation = reservationService.bookReservation(reservation);
+        return ResponseEntity.ok(savedReservation);
+    }
+
+    // Book a reservation from the form
+    @PostMapping("form/book")
+    public ResponseEntity<Reservation> bookReservation(@RequestBody ReservationRequestDTO reservationDTO) {
+        Reservation savedReservation = reservationService.bookReservation(reservationDTO);
         return ResponseEntity.ok(savedReservation);
     }
 

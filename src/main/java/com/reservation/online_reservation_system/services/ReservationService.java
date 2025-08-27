@@ -5,10 +5,13 @@ import com.reservation.online_reservation_system.models.Train;
 import com.reservation.online_reservation_system.models.User;
 import com.reservation.online_reservation_system.repositories.ReservationRepository;
 import com.reservation.online_reservation_system.repositories.TrainRepository;
+import com.reservation.online_reservation_system.repositories.UserRepository;
+import com.reservation.online_reservation_system.services.dto.ReservationRequestDTO;
 import com.reservation.online_reservation_system.utilities.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +21,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final TrainRepository trainRepository;
+    private final UserRepository userRepository;
 
     // Book a new reservation
     public Reservation bookReservation(Reservation reservation) {
@@ -30,6 +34,37 @@ public class ReservationService {
         // Decrease available seats
         train.setAvailableSeats(train.getAvailableSeats() - 1);
         trainRepository.save(train);
+
+        // Save reservation
+        return reservationRepository.save(reservation);
+    }
+
+    // Book a new reservation
+    public Reservation bookReservation(ReservationRequestDTO reservationDTO) {
+        Train train = trainRepository.findByTrainNumber(reservationDTO.getTrainNumber())
+                .orElseThrow(() -> new RuntimeException("Train not found"));
+        User user = userRepository.findByUsername(reservationDTO.getPassengerName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                
+        // check seat availability before booking
+        if (train.getAvailableSeats() <= 0) {
+            throw new RuntimeException("No seats available for this train.");
+        }
+
+        // Decrease available seats
+        train.setAvailableSeats(train.getAvailableSeats() - 1);
+        trainRepository.save(train);
+        
+        Reservation reservation = new Reservation();
+                    reservation.setUser(user);
+                    reservation.setTrain(train);
+                    reservation.setPassengerName(user.getUsername());
+                    reservation.setClassType(train.getClassType());
+                    reservation.setJourneyDate(train.getDepartureTime().toLocalDate());
+                    reservation.setFromStation(train.getSourceStation());
+                    reservation.setToStation(train.getDestinationStation());
+                    reservation.setBookingDate(LocalDateTime.now());
 
         // Save reservation
         return reservationRepository.save(reservation);

@@ -1,6 +1,5 @@
 package com.reservation.online_reservation_system.configs;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,9 +81,9 @@ public class DataLoader {
                     Reservation r = new Reservation();
                     r.setUser(user);
                     r.setTrain(train);
-                    r.setPassengerName(user.getUsername() + " Passenger " + (j + 1));
+                    r.setPassengerName(user.getUsername());
                     r.setClassType(train.getClassType());
-                    r.setJourneyDate(LocalDate.now().plusDays(3 + j)); // different dates
+                    r.setJourneyDate(train.getDepartureTime().toLocalDate());
                     r.setFromStation(train.getSourceStation());
                     r.setToStation(train.getDestinationStation());
                     r.setBookingDate(LocalDateTime.now());

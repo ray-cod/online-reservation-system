@@ -181,16 +181,27 @@
     }, 1000);
   });
 
-  // Booking form submit (demo)
-  bookingForm.addEventListener("submit", function (e) {
-    // let the form submit to server in real app; here we demo
+  // Booking form submit
+  bookingForm.addEventListener("submit", async function (e) {
+    // let the form submit to server
     e.preventDefault();
     const payload = Object.fromEntries(new FormData(bookingForm).entries());
-    // Example: send fetch POST to /api/reservations/book with JSON
-    console.log("Booking payload", payload);
-    alert(
-      "Booking confirmed (demo). In production, form will be submitted to server."
-    );
-    closeBooking();
+
+    const response = await fetch("/api/reservations/form/book", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      alert("Failed to book reservation.");
+      return;
+    }
+
+    const result = await response.json();
+
+    alert("Booking confirmed.");
+    // reload page
+    window.location.reload();
   });
 })();
