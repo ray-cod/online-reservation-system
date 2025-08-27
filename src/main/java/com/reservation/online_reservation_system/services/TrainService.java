@@ -30,7 +30,7 @@ public class TrainService {
     }
 
     // Get train by class type
-    public Optional<Train> getTrainByClassType(String classType) {
+    public List<Train> getTrainByClassType(String classType) {
         return trainRepository.findByClassType(classType);
     }
 

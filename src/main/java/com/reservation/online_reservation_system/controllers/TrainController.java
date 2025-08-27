@@ -40,10 +40,13 @@ public class TrainController {
 
     // Get train by class type
     @GetMapping("/class/{classType}")
-    public ResponseEntity<Train> getTrainByClassType(@PathVariable String classType) {
-        return trainService.getTrainByClassType(classType)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<List<Train>> getTrainByClassType(@PathVariable String classType) {
+        List<Train> trains = trainService.getTrainByClassType(classType);
+    
+        if (trains.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(trains);
     }
 
     // Get all trains

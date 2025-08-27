@@ -16,65 +16,64 @@
   const cancelMsg = document.getElementById("cancelMsg");
 
   // Show results section when search submitted
-  searchForm.addEventListener("submit", function (e) {
-    // Let the browser perform the GET request (or you can intercept and fetch via AJAX)
-    // For demo, prevent submission and show a demo row
+  searchForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    // Clear previous rows
-    resultsTableBody.innerHTML = "";
+    const date = document.getElementById("date").value;
+    const classType = document.getElementById("classType").value;
 
-    // Demo: create two example rows (replace with real data from server)
-    const demoData = [
-      {
-        id: 1,
-        number: "12001",
-        name: "Shatabdi Express",
-        from: "City A",
-        to: "City B",
-        dep: "06:00",
-        arr: "12:30",
-        classType: "AC",
-        seats: 8,
-      },
-      {
-        id: 2,
-        number: "12567",
-        name: "InterCity",
-        from: "City A",
-        to: "City B",
-        dep: "08:30",
-        arr: "14:00",
-        classType: "SLEEPER",
-        seats: 5,
-      },
-    ];
+    if (!date || !classType) return;
 
-    demoData.forEach((tr) => {
-      const trEl = document.createElement("tr");
-      trEl.innerHTML = `
-            <td>${tr.number}</td>
-            <td>${tr.name}</td>
-            <td>${tr.from}</td>
-            <td>${tr.to}</td>
-            <td>${tr.dep}</td>
-            <td>${tr.arr}</td>
-            <td>${tr.classType}</td>
-            <td>${tr.seats}</td>
-            <td><button class="btn btn-sm btn-primary book-btn" 
-                data-train-id="${tr.id}" 
-                data-train-number="${tr.number}" 
-                data-train-name="${tr.name}" 
-                data-from="${tr.from}"
-                data-to="${tr.to}"
-                data-class="${tr.classType}"
-              >Book</button></td>
-          `;
-      resultsTableBody.appendChild(trEl);
-    });
+    // Build URL
+    const url = `/api/trains/class/${classType}?date=${encodeURIComponent(
+      date
+    )}`;
 
-    resultsSection.hidden = false;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error("Failed to fetch trains");
+        return;
+      }
+
+      const trains = await res.json();
+
+      // Clear previous rows
+      resultsTableBody.innerHTML = "";
+
+      // Populate table
+      trains.forEach((tr) => {
+        const trEl = document.createElement("tr");
+        trEl.innerHTML = `
+        <td>${tr.trainNumber}</td>
+        <td>${tr.trainName}</td>
+        <td>${tr.sourceStation}</td>
+        <td>${tr.destinationStation}</td>
+        <td>${new Date(tr.departureTime).toLocaleDateString()}</td>
+        <td>${new Date(tr.arrivalTime).toLocaleDateString()}</td>
+        <td>${tr.classType}</td>
+        <td>${tr.availableSeats}</td>
+        <td>
+          <button class="btn btn-sm btn-primary book-btn" 
+            data-train-id="${tr.trainId}" 
+            data-train-number="${tr.trainNumber}" 
+            data-train-name="${tr.trainName}" 
+            data-from="${tr.sourceStation}"
+            data-to="${tr.destinationStation}"
+            data-class="${tr.classType}">
+            Book
+          </button>
+        </td>
+      `;
+        resultsTableBody.appendChild(trEl);
+      });
+
+      resultsSection.hidden = false;
+    } catch (err) {
+      console.error("Error fetching trains:", err);
+    }
   });
+
 
   // Delegate clicks on book buttons
   resultsTableBody.addEventListener("click", function (e) {
