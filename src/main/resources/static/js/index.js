@@ -97,7 +97,7 @@
     document.getElementById("fromStation").value = data.from;
     document.getElementById("toStation").value = data.to;
     document.getElementById("bookingClass").value = data.classType;
-    // optionally set default journey date from search
+    // Make modal visible
     bookingModal.removeAttribute("aria-hidden");
     bookingModal.style.display = "block";
   }
