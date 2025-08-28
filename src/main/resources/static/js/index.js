@@ -74,7 +74,6 @@
     }
   });
 
-
   // Delegate clicks on book buttons
   resultsTableBody.addEventListener("click", function (e) {
     if (e.target && e.target.matches(".book-btn")) {
@@ -147,7 +146,7 @@
     }
   });
 
-  // Cancel PNR from reservation list (demo)
+  // Cancel PNR from reservation list
   document
     .querySelector("#reservationsTable tbody")
     .addEventListener("click", async function (e) {
@@ -182,7 +181,7 @@
     });
 
   // Cancel via quick form
-  cancelForm.addEventListener("submit", function (e) {
+  cancelForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const pnr = document.getElementById("pnr").value.trim();
     if (!pnr) {
@@ -191,11 +190,18 @@
     }
     cancelMsg.textContent = "Processing cancellation...";
 
-    // Demo: pretend success after 1s
-    setTimeout(() => {
-      cancelMsg.textContent = `PNR ${pnr} cancelled successfully.`;
-      cancelForm.reset();
-    }, 1000);
+    const cancelRequest = await fetch(`/api/reservations/cancel/${pnr}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!cancelRequest.ok) {
+      cancelMsg.textContent = `Failed to cancel PNR ${pnr}. It may not exist or is already cancelled.`;
+      return;
+    }
+    
+    cancelMsg.textContent = `PNR ${pnr} cancelled successfully.`;
+    cancelForm.reset();
   });
 
   // Booking form submit

@@ -1,205 +1,258 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ReserVate — Single Page Reservation</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ReserVate — Single Page Reservation</title>
 
-  <!-- Google font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Google font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
 
-  <!-- External stylesheet -->
-  <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
-<body>
-  <!-- ===== Header ===== -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="#" aria-label="ReserVate home">
-        <span class="logo-mark" aria-hidden="true">⟳</span>
-        <span class="logo-text">ReserVate</span>
-      </a>
+    <!-- External stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  </head>
+  <body>
+    <!-- ===== Header ===== -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#" aria-label="ReserVate home">
+          <span class="logo-mark" aria-hidden="true">⟳</span>
+          <span class="logo-text">ReserVate</span>
+        </a>
 
-      <div class="actions">
-        <button id="btn-reservations" class="btn btn-outline" title="My reservations">My reservations</button>
-        <div class="user-icon">
-          <i class="fa-solid fa-user"></i>
+        <div class="actions">
+          <button
+            id="btn-reservations"
+            class="btn btn-outline"
+            title="My reservations"
+          >
+            My reservations
+          </button>
+          <div class="user-icon">
+            <i class="fa-solid fa-user"></i>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ===== App main section ===== -->
-  <main class="container app">
-    <!-- Hero / Quick search -->
-    <section class="hero">
-      <div class="hero-left">
-        <h1>Book trains easily — all in one page</h1>
-        <p class="lead">Search routes, reserve seats and manage bookings without navigating away.</p>
-        <p class="muted">Quick tip: login for a personalized reservations list and faster booking.</p>
-      </div>
+    <!-- ===== App main section ===== -->
+    <main class="container app">
+      <!-- Hero / Quick search -->
+      <section class="hero">
+        <div class="hero-left">
+          <h1>Book trains easily — all in one page</h1>
+          <p class="lead">
+            Search routes, reserve seats and manage bookings without navigating
+            away.
+          </p>
+          <p class="muted">
+            Quick tip: login for a personalized reservations list and faster
+            booking.
+          </p>
+        </div>
 
-      <aside class="search-panel" aria-labelledby="search-title">
-        <h2 id="search-title">Find trains</h2>
+        <aside class="search-panel" aria-labelledby="search-title">
+          <h2 id="search-title">Find trains</h2>
 
-        <!-- Search form (GET) -->
-        <form id="searchForm" class="reservation-form" >
-          <div class="grid">
-            <div>
-              <label class="visually-hidden" for="date">Date</label>
-              <input id="date" name="date" type="date" required>
+          <!-- Search form (GET) -->
+          <form id="searchForm" class="reservation-form">
+            <div class="grid">
+              <div>
+                <label class="visually-hidden" for="date">Date</label>
+                <input id="date" name="date" type="date" required />
+              </div>
+              <div>
+                <label class="visually-hidden" for="classType">Class</label>
+                <select id="classType" name="classType" required>
+                  <option value="" disabled selected>Class</option>
+                  <option value="GENERAL">General</option>
+                  <option value="SLEEPER">Sleeper</option>
+                  <option value="AC">AC</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label class="visually-hidden" for="classType">Class</label>
-              <select id="classType" name="classType" required>
-                <option value="" disabled selected>Class</option>
+
+            <button type="submit" class="btn btn-search">Search trains</button>
+          </form>
+        </aside>
+      </section>
+
+      <!-- Search Results -->
+      <section
+        id="resultsSection"
+        class="results-section"
+        aria-live="polite"
+        hidden
+      >
+        <h3>Available trains</h3>
+
+        <!-- Table will be filled by server-side rendering or by JS fetch -->
+        <div class="table-wrap">
+          <table id="resultsTable" class="results-table">
+            <thead>
+              <tr>
+                <th>Train #</th>
+                <th>Name</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Class</th>
+                <th>Seats</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- server or JS should replace / append rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Booking panel (modal-style) -->
+      <div id="bookingModal" class="modal" aria-hidden="true">
+        <div
+          class="modal-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modalTitle"
+        >
+          <header class="modal-header">
+            <h3 id="modalTitle">Book seat</h3>
+            <button
+              id="closeModal"
+              class="btn-icon"
+              aria-label="Close booking panel"
+            >
+              ✕
+            </button>
+          </header>
+
+          <form id="bookingForm">
+            <input type="hidden" id="trainId" name="trainId" />
+            <div class="field">
+              <label for="trainNumber">Train</label>
+              <input id="trainNumber" name="trainNumber" type="text" readonly />
+            </div>
+
+            <div class="field">
+              <label for="trainName">Name</label>
+              <input id="trainName" name="trainName" type="text" readonly />
+            </div>
+
+            <div class="field">
+              <label for="passengerName">Passenger name</label>
+              <input
+                id="passengerName"
+                name="passengerName"
+                type="text"
+                placeholder="Full name"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="bookingClass">Class</label>
+              <select id="bookingClass" name="classType" required disabled>
                 <option value="GENERAL">General</option>
                 <option value="SLEEPER">Sleeper</option>
                 <option value="AC">AC</option>
               </select>
             </div>
-          </div>
 
-          <button type="submit" class="btn btn-search">Search trains</button>
+            <div class="field">
+              <label for="fromStation">From</label>
+              <input id="fromStation" name="fromStation" type="text" readonly />
+            </div>
+
+            <div class="field">
+              <label for="toStation">To</label>
+              <input id="toStation" name="toStation" type="text" readonly />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancelBooking" class="btn btn-outline">
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Confirm booking
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- My reservations (user must be logged in to see real data) -->
+      <section id="myReservations" class="my-reservations" hidden>
+        <h3>My reservations</h3>
+        <p class="muted">
+          Listed below are your current reservations. Use the Cancel button to
+          cancel a booking.
+        </p>
+
+        <div class="table-wrap">
+          <table id="reservationsTable" class="results-table">
+            <thead>
+              <tr>
+                <th>PNR</th>
+                <th>Train</th>
+                <th>Passenger</th>
+                <th>Date</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Class</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Server-side or JS should populate actual rows for the logged-in user -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Cancel by PNR quick form -->
+      <section class="cancel-section">
+        <h3>Cancel booking</h3>
+        <form id="cancelForm" action="/api/reservations/cancel" method="post">
+          <label class="visually-hidden" for="pnr">PNR</label>
+          <input
+            id="pnr"
+            name="pnr"
+            type="text"
+            placeholder="Enter PNR to cancel"
+            required
+          />
+          <button type="submit" class="btn btn-cta">Cancel PNR</button>
         </form>
-      </aside>
-    </section>
+        <p id="cancelMsg" class="muted" aria-live="polite"></p>
+      </section>
+    </main>
 
-    <!-- Search Results -->
-    <section id="resultsSection" class="results-section" aria-live="polite" hidden>
-      <h3>Available trains</h3>
-
-      <!-- Table will be filled by server-side rendering or by JS fetch -->
-      <div class="table-wrap">
-        <table id="resultsTable" class="results-table">
-          <thead>
-            <tr>
-              <th>Train #</th>
-              <th>Name</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Departure</th>
-              <th>Arrival</th>
-              <th>Class</th>
-              <th>Seats</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- server or JS should replace / append rows -->
-          </tbody>
-        </table>
+    <!-- ===== Footer ===== -->
+    <footer class="site-footer">
+      <div class="container footer-simple">
+        <div class="brand-footer">
+          <span class="logo-mark">⟳</span>
+          <span class="logo-text">ReserVate</span>
+        </div>
+        <div class="contact">
+          <p class="muted">support@reservate.example • &copy; 2025 ReserVate</p>
+        </div>
       </div>
-    </section>
+    </footer>
 
-    <!-- Booking panel (modal-style) -->
-    <div id="bookingModal" class="modal" aria-hidden="true">
-      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <header class="modal-header">
-          <h3 id="modalTitle">Book seat</h3>
-          <button id="closeModal" class="btn-icon" aria-label="Close booking panel">✕</button>
-        </header>
-
-        <form id="bookingForm">
-          <input type="hidden" id="trainId" name="trainId">
-          <div class="field">
-            <label for="trainNumber">Train</label>
-            <input id="trainNumber" name="trainNumber" type="text" readonly>
-          </div>
-
-          <div class="field">
-            <label for="trainName">Name</label>
-            <input id="trainName" name="trainName" type="text" readonly>
-          </div>
-
-          <div class="field">
-            <label for="passengerName">Passenger name</label>
-            <input id="passengerName" name="passengerName" type="text" placeholder="Full name" required>
-          </div>
-
-          <div class="field">
-            <label for="bookingClass">Class</label>
-            <select id="bookingClass" name="classType" required disabled>
-              <option value="GENERAL">General</option>
-              <option value="SLEEPER">Sleeper</option>
-              <option value="AC">AC</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="fromStation">From</label>
-            <input id="fromStation" name="fromStation" type="text" readonly>
-          </div>
-
-          <div class="field">
-            <label for="toStation">To</label>
-            <input id="toStation" name="toStation" type="text" readonly>
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" id="cancelBooking" class="btn btn-outline">Cancel</button>
-            <button type="submit" class="btn btn-primary">Confirm booking</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- My reservations (user must be logged in to see real data) -->
-    <section id="myReservations" class="my-reservations" hidden>
-      <h3>My reservations</h3>
-      <p class="muted">Listed below are your current reservations. Use the Cancel button to cancel a booking.</p>
-
-      <div class="table-wrap">
-        <table id="reservationsTable" class="results-table">
-          <thead>
-            <tr>
-              <th>PNR</th>
-              <th>Train</th>
-              <th>Passenger</th>
-              <th>Date</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Class</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Server-side or JS should populate actual rows for the logged-in user -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Cancel by PNR quick form -->
-    <section class="cancel-section">
-      <h3>Cancel booking</h3>
-      <form id="cancelForm" action="/api/reservations/cancel" method="post">
-        <label class="visually-hidden" for="pnr">PNR</label>
-        <input id="pnr" name="pnr" type="text" placeholder="Enter PNR to cancel" required>
-        <button type="submit" class="btn btn-cta">Cancel PNR</button>
-      </form>
-      <p id="cancelMsg" class="muted" aria-live="polite"></p>
-    </section>
-  </main>
-
-  <!-- ===== Footer ===== -->
-  <footer class="site-footer">
-    <div class="container footer-simple">
-      <div class="brand-footer">
-        <span class="logo-mark">⟳</span>
-        <span class="logo-text">ReserVate</span>
-      </div>
-      <div class="contact">
-        <p class="muted">support@reservate.example • &copy; 2025 ReserVate</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Lightweight JS to wire UI interactions -->
-  <script th:src="@{/js/index.js}"></script>
-</body>
+    <!-- Lightweight JS to wire UI interactions -->
+    <script th:src="@{/js/index.js}"></script>
+  </body>
 </html>
