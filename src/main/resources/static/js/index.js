@@ -112,7 +112,7 @@
   // Toggle reservations panel
   btnReservations.addEventListener("click", async function () {
     if (myReservations.hidden) {
-      // fetch user's reservations from /api/reservations/user/{userId}
+      // fetch user's reservations from /api/reservations/user/me
       const res = await fetch("/api/reservations/user/me");
       if (!res.ok) {
         console.error("failed to fetch trains");
@@ -134,7 +134,7 @@
             <td>${r.status}</td>
             <td>${
               r.status !== "CANCELLED"
-                ? `<button class="btn btn-sm btn-danger cancel-pnr">Cancel</button>`
+                ? `<button class="btn btn-sm btn-danger cancel-pnr" data-pnr="${r.pnrNumber}">Cancel</button>`
                 : ""
             }</td>
           `;
@@ -150,16 +150,33 @@
   // Cancel PNR from reservation list (demo)
   document
     .querySelector("#reservationsTable tbody")
-    .addEventListener("click", function (e) {
+    .addEventListener("click", async function (e) {
       if (e.target && e.target.matches(".cancel-pnr")) {
         const confirmed = confirm(
           "Are you sure you want to cancel this booking?"
         );
+
+        const pnrNumber = e.target.getAttribute("data-pnr");
+
         if (confirmed) {
-          // TODO: call API to cancel
-          e.target.closest("tr").querySelector("td:nth-child(8)").textContent =
-            "CANCELLED";
-          e.target.remove();
+          // Call API to cancel
+          const res = await fetch(`/api/reservations/cancel/${pnrNumber}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (res.ok) {
+            // update row status in UI
+            const updated = await res.json();
+            e.target
+              .closest("tr")
+              .querySelector("td:nth-child(8)").textContent = updated.status;
+            e.target.remove(); // remove cancel button
+          } else {
+            console.error("Failed to cancel reservation");
+          }
         }
       }
     });
