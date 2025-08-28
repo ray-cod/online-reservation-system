@@ -158,12 +158,7 @@ To enable seeding only in dev:
 
 ## Screenshots & demo
 
-Include screenshots in `docs/` or the repo root to showcase:
-
-* Home / search panel
-* Booking modal
-* “My reservations” list
-* H2 console (optional)
+![Booking System Screenshot](./docs/home-page-img.png)
 
 ---
 
