@@ -5,6 +5,12 @@ This project is designed as a portfolio-ready sample showing a full-stack Java w
 
 ---
 
+## Screenshots & demo
+
+![Booking System Screenshot](./docs/home-page-img.png)
+
+---
+
 ## 🚀 Highlights
 
 * Full Spring Boot app with layered architecture: **entities → repositories → services → controllers**.
@@ -153,12 +159,6 @@ To enable seeding only in dev:
 
 * Unit tests can be added for services (mock repositories) and controllers (MockMvc).
 * Integration tests: use `@SpringBootTest` with an in-memory H2 DB.
-
----
-
-## Screenshots & demo
-
-![Booking System Screenshot](./docs/home-page-img.png)
 
 ---
 
