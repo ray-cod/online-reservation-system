@@ -9,6 +9,7 @@ public class ReservationRequestDTO {
     private String classType;    
     private String fromStation;  
     private String toStation;   
+    private String journeyDate;
 
     // Getters and setters
     public Long getTrainId() { return trainId; }
@@ -31,5 +32,8 @@ public class ReservationRequestDTO {
 
     public String getToStation() { return toStation; }
     public void setToStation(String toStation) { this.toStation = toStation; }
+
+    public String getJourneyDate() { return journeyDate; }
+    public void setJourneyDate(String journeyDate) { this.journeyDate = journeyDate; }
 }
 
